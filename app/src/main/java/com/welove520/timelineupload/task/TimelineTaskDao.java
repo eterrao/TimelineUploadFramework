@@ -26,8 +26,11 @@ public class TimelineTaskDao extends AbstractDao<TimelineTask, Long> {
         public final static Property Name = new Property(1, String.class, "name", false, "NAME");
         public final static Property SendTimeMS = new Property(2, Long.class, "sendTimeMS", false, "SEND_TIME_MS");
         public final static Property Progress = new Property(3, Integer.class, "progress", false, "PROGRESS");
-        public final static Property Flag = new Property(4, boolean.class, "flag", false, "FLAG");
+        public final static Property UploadStatus = new Property(4, Integer.class, "uploadStatus", false, "UPLOAD_STATUS");
+        public final static Property Uploaded = new Property(5, boolean.class, "uploaded", false, "UPLOADED");
     }
+
+    private DaoSession daoSession;
 
 
     public TimelineTaskDao(DaoConfig config) {
@@ -36,6 +39,7 @@ public class TimelineTaskDao extends AbstractDao<TimelineTask, Long> {
     
     public TimelineTaskDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -46,10 +50,11 @@ public class TimelineTaskDao extends AbstractDao<TimelineTask, Long> {
                 "\"NAME\" TEXT," + // 1: name
                 "\"SEND_TIME_MS\" INTEGER," + // 2: sendTimeMS
                 "\"PROGRESS\" INTEGER," + // 3: progress
-                "\"FLAG\" INTEGER NOT NULL );"); // 4: flag
+                "\"UPLOAD_STATUS\" INTEGER," + // 4: uploadStatus
+                "\"UPLOADED\" INTEGER NOT NULL );"); // 5: uploaded
         // Add Indexes
-        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_TIMELINE_TASK__id ON \"TIMELINE_TASK\"" +
-                " (\"_id\" ASC);");
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_TIMELINE_TASK_SEND_TIME_MS_DESC ON \"TIMELINE_TASK\"" +
+                " (\"SEND_TIME_MS\" DESC);");
     }
 
     /** Drops the underlying database table. */
@@ -81,7 +86,12 @@ public class TimelineTaskDao extends AbstractDao<TimelineTask, Long> {
         if (progress != null) {
             stmt.bindLong(4, progress);
         }
-        stmt.bindLong(5, entity.getFlag() ? 1L: 0L);
+ 
+        Integer uploadStatus = entity.getUploadStatus();
+        if (uploadStatus != null) {
+            stmt.bindLong(5, uploadStatus);
+        }
+        stmt.bindLong(6, entity.getUploaded() ? 1L: 0L);
     }
 
     @Override
@@ -107,7 +117,18 @@ public class TimelineTaskDao extends AbstractDao<TimelineTask, Long> {
         if (progress != null) {
             stmt.bindLong(4, progress);
         }
-        stmt.bindLong(5, entity.getFlag() ? 1L: 0L);
+ 
+        Integer uploadStatus = entity.getUploadStatus();
+        if (uploadStatus != null) {
+            stmt.bindLong(5, uploadStatus);
+        }
+        stmt.bindLong(6, entity.getUploaded() ? 1L: 0L);
+    }
+
+    @Override
+    protected final void attachEntity(TimelineTask entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
     }
 
     @Override
@@ -122,7 +143,8 @@ public class TimelineTaskDao extends AbstractDao<TimelineTask, Long> {
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // name
             cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2), // sendTimeMS
             cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3), // progress
-            cursor.getShort(offset + 4) != 0 // flag
+            cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4), // uploadStatus
+            cursor.getShort(offset + 5) != 0 // uploaded
         );
         return entity;
     }
@@ -133,7 +155,8 @@ public class TimelineTaskDao extends AbstractDao<TimelineTask, Long> {
         entity.setName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setSendTimeMS(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
         entity.setProgress(cursor.isNull(offset + 3) ? null : cursor.getInt(offset + 3));
-        entity.setFlag(cursor.getShort(offset + 4) != 0);
+        entity.setUploadStatus(cursor.isNull(offset + 4) ? null : cursor.getInt(offset + 4));
+        entity.setUploaded(cursor.getShort(offset + 5) != 0);
      }
     
     @Override

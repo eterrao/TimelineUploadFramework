@@ -10,6 +10,21 @@
         android:layout_height="wrap_content"
         android:text="name" />
 
+    <TextView
+        android:id="@+id/tv_task_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="status: " />
+
+    <TextView
+        android:id="@+id/tv_task_uploaded"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="30dp"
+        android:layout_toLeftOf="@+id/tv_task_status"
+        android:text="isuploaded: " />
+
     <ProgressBar
         android:id="@+id/pb_task_upload"
         style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
@@ -18,11 +33,41 @@
         android:layout_below="@+id/tv_task_name"
         android:padding="10dp" />
 
-    <Button
-        android:id="@+id/btn_operation"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/pb_task_upload"
         android:layout_alignParentRight="true"
-        android:text="重試" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_operation_finish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="finish" />
+
+        <Button
+            android:id="@+id/btn_operation_retry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="retry" />
+
+        <Button
+            android:id="@+id/btn_operation_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="delete" />
+
+        <Button
+            android:id="@+id/btn_operation_failed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="failed" />
+    </LinearLayout>
+
 
 </RelativeLayout>
